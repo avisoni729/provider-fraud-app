@@ -4,8 +4,8 @@ import joblib
 
 st.set_page_config(page_title="Provider Fraud Detection", layout="wide")
 
-# link to the notebook (HTML) - filled in after the repo is up
-NOTEBOOK_URL = ""
+# link to the notebook (HTML) hosted on GitHub Pages
+NOTEBOOK_URL = "https://avisoni729.github.io/provider-fraud-app/Fraud_Detection_Case_Study.html"
 
 model = joblib.load("fraud_model.joblib")
 feature_columns = joblib.load("model_features.joblib")
