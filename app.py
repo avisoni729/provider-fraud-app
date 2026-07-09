@@ -112,20 +112,22 @@ with tab2:
 with tab3:
     st.subheader("How the models compared")
     st.write(
-        "Three models were trained on the same 16 provider-level features, with class "
-        "weighting to handle the 9.4% fraud rate. All numbers below are from a held-out "
-        "validation set of 1,082 providers the models never saw during training."
+        "**Seven models** were tested on the same 16 provider-level features and the same "
+        "held-out validation set of 1,082 providers. Class weighting handled the 9.4% fraud "
+        "rate where the algorithm supports it, Naive Bayes, KNN and AdaBoost have no such "
+        "option, which shows in their low recall."
     )
 
     scorecard = pd.DataFrame(
         {
-            "Accuracy": [0.864, 0.887, 0.858],
-            "Recall": [0.911, 0.851, 0.901],
-            "Precision": [0.400, 0.446, 0.387],
-            "F1-Score": [0.556, 0.585, 0.542],
-            "ROC-AUC": [0.958, 0.956, 0.955],
+            "Accuracy": [0.864, 0.887, 0.858, 0.940, 0.933, 0.904, 0.853],
+            "Recall": [0.911, 0.851, 0.901, 0.436, 0.455, 0.743, 0.871],
+            "Precision": [0.400, 0.446, 0.387, 0.846, 0.730, 0.490, 0.376],
+            "F1-Score": [0.556, 0.585, 0.542, 0.575, 0.561, 0.591, 0.525],
+            "ROC-AUC": [0.958, 0.956, 0.955, 0.954, 0.939, 0.937, 0.892],
         },
-        index=["Logistic Regression", "Random Forest (chosen)", "XGBoost"],
+        index=["Logistic Regression", "Random Forest (chosen)", "XGBoost",
+               "AdaBoost", "KNN", "Naive Bayes", "Decision Tree"],
     )
 
     def highlight_chosen(row):
@@ -135,6 +137,11 @@ with tab3:
 
     st.dataframe(scorecard.style.apply(highlight_chosen, axis=1).format("{:.3f}"),
                  use_container_width=True)
+    st.caption(
+        "**Random Forest was chosen for the best recall/robustness balance, the others are "
+        "shown for comparison.** Decision Tree vs Random Forest shows what bagging buys, "
+        "same tree family, one tree vs 200 averaged."
+    )
 
     st.subheader("Why Random Forest")
     st.write(
