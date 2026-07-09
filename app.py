@@ -38,6 +38,17 @@ with tab1:
     col2.metric("Flagged as potential fraud", flagged)
     col3.metric("Flagged percentage", f"{flagged / len(predictions) * 100:.1f}%")
 
+    with st.expander("Why are ~19% flagged when only ~9% of training providers were fraud?"):
+        st.write(
+            "**This is intentional, not drift.** The flag rate follows directly from the "
+            "model's operating point. At **recall 0.851** and **precision 0.446**, with a "
+            "**9.4% underlying fraud rate**, the expected flagged share works out to "
+            "9.4% × 0.851 ÷ 0.446 ≈ **18%**, which is exactly where this lands. "
+            "The model is deliberately run as a **high-recall triage tool**, it flags "
+            "generously and lets investigators filter, rather than keeping the list short "
+            "and missing real fraud."
+        )
+
     show_flagged_only = st.checkbox("Show only flagged providers")
     table = predictions.sort_values("Probability", ascending=False)
     if show_flagged_only:
@@ -151,7 +162,9 @@ with tab3:
         "If the business later judges undetected fraud to be far more costly than a wasted "
         "investigation, the cutoff gets **lowered to favor recall**, and if investigator "
         "capacity tightens, it gets **raised to favor precision**, either way **without "
-        "retraining or replacing the model**."
+        "retraining or replacing the model**. A stronger precision headline is available "
+        "at a higher cutoff, this was checked empirically during development, **the current "
+        "point was chosen on purpose for triage**, not because it's the only one available."
     )
     st.write(
         "Generalization was checked directly, training recall **0.90** vs **0.851** on validation, "
