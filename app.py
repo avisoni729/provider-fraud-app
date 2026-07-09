@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import altair as alt
 
 st.set_page_config(page_title="Provider Fraud Detection", page_icon="🩺", layout="wide")
 
@@ -54,7 +55,7 @@ with tab1:
 with tab2:
     st.subheader("Score a new provider-level CSV")
     st.write(
-        "Upload a CSV with one row per provider and the 16 feature columns the "
+        "Upload a CSV with **one row per provider** and the **16 feature columns** the "
         "model was trained on. A Provider ID column is optional but recommended. "
         "Download the template below to see the exact format."
     )
@@ -127,32 +128,43 @@ with tab3:
     st.subheader("Why Random Forest")
     st.write(
         "All three models rank fraud almost equally well, the ROC-AUC scores are within "
-        "0.003 of each other. So the choice wasn't about raw performance."
+        "**0.003** of each other. So the choice wasn't about raw performance."
     )
     st.write(
-        "Random Forest was kept for practical reasons. It needs no feature scaling, and "
+        "**Random Forest was kept for practical reasons.** It needs no feature scaling, and "
         "it isn't thrown off by the heavy outliers in the billing features, a few providers "
         "bill enormous amounts and that's exactly the kind of thing we want the model to "
         "handle rather than be distorted by."
     )
     st.write(
-        "The recall/precision balance is a separate decision from the model itself, it's "
-        "set by the probability cutoff. At the current 0.5 cutoff the model catches about "
-        "85% of fraud, and roughly 4-5 of every 10 flags are real. If the business decides "
+        "**The recall/precision balance is a separate decision from the model itself**, it's "
+        "set by the probability cutoff. At the current **0.5 cutoff** the model catches about "
+        "**85% of fraud**, and roughly **4-5 of every 10 flags are real**. If the business decides "
         "missing fraud costs more than a wasted investigation, the cutoff gets lowered to "
-        "catch more, without retraining or replacing the model."
+        "catch more, **without retraining or replacing the model**."
     )
     st.write(
-        "Generalization was checked directly, training recall 0.90 vs 0.851 on validation, "
-        "training precision 0.45 vs 0.446. The two are close, the model behaves almost the "
-        "same on data it never saw, so it's learning a pattern rather than memorizing providers."
+        "Generalization was checked directly, training recall **0.90** vs **0.851** on validation, "
+        "training precision **0.45** vs **0.446**. The two are close, the model behaves almost the "
+        "same on data it never saw, so it's **learning a pattern rather than memorizing providers**."
     )
 
     st.subheader("What the model relies on most")
-    importance = pd.Series(model.feature_importances_, index=feature_columns).sort_values()
-    st.bar_chart(importance, horizontal=True, height=450)
-    st.caption(
-        "Billing intensity and claim volume dominate, total reimbursed, inpatient claim "
-        "count, and the single largest claim. The model mostly learns from how much and "
-        "how often a provider bills."
+    importance_df = pd.DataFrame({
+        "Feature": feature_columns,
+        "Importance": model.feature_importances_,
+    }).sort_values("Importance", ascending=False)
+
+    importance_chart = alt.Chart(importance_df).mark_bar(color="#0f6cbd").encode(
+        x=alt.X("Importance:Q", axis=alt.Axis(labelFontSize=12, titleFontWeight="bold")),
+        y=alt.Y("Feature:N", sort="-x", title=None,
+                axis=alt.Axis(labelLimit=0, labelFontSize=13, labelFontWeight="bold")),
+        tooltip=["Feature", alt.Tooltip("Importance:Q", format=".3f")],
+    ).properties(height=480)
+    st.altair_chart(importance_chart, use_container_width=True)
+
+    st.write(
+        "Billing intensity and claim volume dominate, **total_reimbursed**, "
+        "**inpatient_claims**, and **max_reimbursed** together carry over half the "
+        "importance. The model mostly learns from **how much and how often a provider bills**."
     )
