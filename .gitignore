@@ -1,0 +1,24 @@
+# raw claims data must never end up in this repo
+# (Unseen_Predictions.csv is fine, it's only model output)
+Train-*.csv
+Train_*.csv
+Unseen-*.csv
+Unseen_Beneficiarydata*.csv
+Unseen_Inpatientdata*.csv
+Unseen_Outpatientdata*.csv
+
+# python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# jupyter
+.ipynb_checkpoints/
+
+# streamlit local secrets
+.streamlit/secrets.toml
+
+# windows
+Thumbs.db
+desktop.ini
