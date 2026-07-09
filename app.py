@@ -128,7 +128,8 @@ with tab3:
     st.subheader("Why Random Forest")
     st.write(
         "All three models rank fraud almost equally well, the ROC-AUC scores are within "
-        "**0.003** of each other. So the choice wasn't about raw performance."
+        "**0.003** of each other. With ranking ability this close, raw performance couldn't "
+        "separate them, **the deciding factors were robustness and practicality instead**."
     )
     st.write(
         "**Random Forest was kept for practical reasons.** It needs no feature scaling, and "
@@ -136,12 +137,21 @@ with tab3:
         "bill enormous amounts and that's exactly the kind of thing we want the model to "
         "handle rather than be distorted by."
     )
+    st.info(
+        "**Working assumption behind the cutoff:** both kinds of error cost money. A **missed "
+        "fraud case** is an ongoing, compounding loss, the provider keeps billing fraudulently "
+        "until caught. A **false alarm** costs a fixed amount of investigator time to rule out. "
+        "The current **0.5 cutoff treats these two costs as roughly comparable**, which is a "
+        "reasonable starting point for a triage tool."
+    )
     st.write(
         "**The recall/precision balance is a separate decision from the model itself**, it's "
-        "set by the probability cutoff. At the current **0.5 cutoff** the model catches about "
-        "**85% of fraud**, and roughly **4-5 of every 10 flags are real**. If the business decides "
-        "missing fraud costs more than a wasted investigation, the cutoff gets lowered to "
-        "catch more, **without retraining or replacing the model**."
+        "set by the probability cutoff, not the algorithm. At the current **0.5 cutoff** the "
+        "model catches about **85% of fraud**, and roughly **4-5 of every 10 flags are real**. "
+        "If the business later judges undetected fraud to be far more costly than a wasted "
+        "investigation, the cutoff gets **lowered to favor recall**, and if investigator "
+        "capacity tightens, it gets **raised to favor precision**, either way **without "
+        "retraining or replacing the model**."
     )
     st.write(
         "Generalization was checked directly, training recall **0.90** vs **0.851** on validation, "
